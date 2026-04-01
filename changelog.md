@@ -1,1 +1,2 @@
-- Updated to 26.1
+- Added support for 26.1.1
+- Re-added JEI and Jade support

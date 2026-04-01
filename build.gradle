@@ -17,28 +17,22 @@ dependencies {
     runtimeOnly "de.maxhenkel.corelib:corelib:${corelib_version}+${minecraft_version}"
     compileOnly "de.maxhenkel.corelib:corelib:${corelib_version}+${minecraft_version}:javadoc"
 
+    compileOnly("mezz.jei:jei-26.1-neoforge-api:${jei_version}")
     //compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
     //runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
-    compileOnly "maven.modrinth:jei:${jei_version}"
-    compileOnly "maven.modrinth:jade:${jade_version}"
+    //implementation "maven.modrinth:jei:${jei_version}"
+    implementation "maven.modrinth:jade:${jade_version}"
 }
 
 processResources {
     filesMatching('**/*.toml') {
         expand 'mod_version': mod_version,
                 'neoforge_dependency': neoforge_dependency,
-                'minecraft_version': minecraft_version
+                'minecraft_version': minecraft_version,
+                'minecraft_dependency': minecraft_dependency
     }
 }
 
 shadowJar {
     relocate 'de.maxhenkel.corelib', 'de.maxhenkel.easyvillagers.corelib'
-}
-
-sourceSets {
-    main {
-        java {
-            exclude 'de/maxhenkel/easyvillagers/integration/*/**'
-        }
-    }
 }
