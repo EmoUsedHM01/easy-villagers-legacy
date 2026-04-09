@@ -1,12 +1,14 @@
 <!-- modrinth_exclude.start -->
 
-# Easy Villagers
+# Easy Villagers Legacy
+
+A 1.7.10 backport of [Easy Villagers](https://github.com/henkelmax/easy-villagers) by Max Henkel, designed for [GT New Horizons](https://www.gtnewhorizons.com/).
 
 ## Links
 
-- [Modrinth](https://modrinth.com/mod/easy-villagers)
-- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/easy-villagers)
-- [Credits](https://modrepo.de/minecraft/easy_villagers/credits)
+- [Original Mod - Modrinth](https://modrinth.com/mod/easy-villagers)
+- [Original Mod - CurseForge](https://www.curseforge.com/minecraft/mc-mods/easy-villagers)
+- [Credits](https://github.com/henkelmax/easy-villagers)
 
 ---
 
@@ -14,86 +16,67 @@
 
 This mod lets you pick up villagers as an item.
 There are also blocks that substitute every farm that includes villagers.
- 
+
 ## The Villager Item
 
-The villager item can be obtained by sneaking and right-clicking a villager or pressing the `V` key.
-
-![](https://media.giphy.com/media/LnvMxJIQ0QwDARBMLn/giphy.gif)
+The villager item can be obtained by sneaking and right-clicking a villager.
 
 The villager item can be placed by right-clicking on the ground.
 
-![](https://media.giphy.com/media/l1x1HXd25QnhauuSye/giphy.gif)
-
 ## The Trader Block
 
-The trader block allows trading with the villager without having to deal with securing the villager. 
+The trader block allows trading with the villager without having to deal with securing the villager.
 This block also allows the villager to restock in non-working hours.
 The restocking time of the villager is not dependent on any external sources like day/night time or dimension.
 You can customize the trading interval in the config.
-
-![](https://media.giphy.com/media/hQosKTXihKZuRlEmcy/giphy.gif)
-
-## The Auto Trader Block
-
-The auto trader works exactly line the trader block, except it automatically trades items for you.
-You can also automatically put items in and take items out with a hopper.
-The cooldown between trades is fully configurable.
-
-![](https://media.giphy.com/media/VSEnGAkDcXRRRGNmuf/giphy.gif)
 
 ## The Farmer Block
 
 The farmer block contains a whole crop farm in a single block. This helps to reduce lag and save space.
 
-![](https://media.giphy.com/media/Quz7YOOjcOZqW6MMTf/giphy.gif)
-
 ## The Breeder Block
 
-The breeder block produces baby villagers by putting in food. This also helps to reduce lag, save space and also a lot of frustration.
-
-![](https://media.giphy.com/media/gHcgWIbkb6VGRJXuox/giphy.gif)
-
-## The Converter Block
-
-The converter block converts villagers to zombie villagers and cures them afterwards, enabling the player that placed the block better trades from the cured villager. 
-This block needs a golden apple, any type of potion of weakness and the villager to convert. 
-This process takes approximately five minutes.
-
-![](https://media.giphy.com/media/l29L7NZ6zURrz0h5Dy/giphy.gif)
+The breeder block produces villagers by putting in food.
+This helps to reduce lag, save space and also a lot of frustration.
 
 ## The Iron Farm Block
 
-The iron farm block contains a complete iron farm in a single block. 
-It produces one iron golem every four minutes. 
+The iron farm block contains a complete iron farm in a single block.
+It produces one iron golem every four minutes.
 This averages about one iron ingot per minute.
-
-![](https://media.giphy.com/media/cMK6vI8EgSWA1Tzete/giphy.gif)
-
-## The Incubator Block
-
-The incubator block increases the growth rate of baby villagers.
-The speed can be changed in the config.
-
-## The Inventory Viewer Block
-
-The inventory viewer block is only available for Minecraft versions `1.20.4+` and currently only obtainable through creative mode.
-It allows you to view and edit the villagers inventory and equipment like armor.
-
-## Trade Cycling
-
-When looking for a good trade, you always have to remove the villagers workstation, in order to reset their trades.
-The trade cycle button solves this problem. If a villager hasn't been traded before, you can just press it and the trades reset automatically.
-Alternatively you can use the `C` key to cycle trades.
-
-This also works for normal villagers.
-
-![](https://media.giphy.com/media/6mO7UlamgPV08FSWga/giphy.gif)
 
 ---
 
-You can take stuff out of these blocks, by sneaking and right-clicking the block with an empty hand. 
+You can take stuff out of these blocks by sneaking and right-clicking the block with an empty hand.
 
 Baby villagers are able to grow up inside of blocks, but the functionality of the blocks will not work until they are grown.
 
 All blocks keep their stuff inside if they are broken.
+
+## Changes from the Original Mod
+
+This backport targets Minecraft 1.7.10 with Forge 10.13.4.1614. The following changes have been made compared to the original Easy Villagers:
+
+### Removed Features
+
+- **Auto Trader Block** - Not implemented in this version.
+- **Converter Block** - Not implemented in this version.
+- **Incubator Block** - Not implemented in this version.
+- **Inventory Viewer Block** - Not implemented in this version.
+- **Trade Cycle Keybind** - The `V` pickup key and `C` cycle key are not available; use sneak + right-click to pick up villagers and the GUI button to cycle trades.
+
+### Changed Features
+
+- **Breeder Block** - Produces adult villagers instead of babies. Produced villagers are assigned a random profession from all registered professions, including modded ones (e.g. GTNH-added professions).
+- **Farmer Villager Straw Hat** - Farmer villagers (profession 0) display a 1.14-style straw hat. This appears on farmers inside blocks, on the villager item icon, on block item icons, and on farmer villager entities in the world.
+- **Block Placement Orientation** - Each block type has a per-block facing offset so that the front face and internal entities align correctly with the player's facing direction when placed.
+- **Custom Item Renderers** - Villager items render a profession-specific 3D villager model in the inventory and when held. Block items render a miniature display case with the appropriate entities inside.
+- **In-Game Config GUI** - All configuration options are editable through the Forge in-game mod config menu, with changes saved immediately.
+
+### Technical Details
+
+- Built with RetroFuturaGradle for GTNH compatibility.
+- Uses GL immediate mode for block item case rendering (Tessellator is unreliable in `IItemRenderer` context on 1.7.10).
+- Straw hat uses `ModelRenderer` with the 1.14 farmer texture UV layout, rendered as a child of the head model for correct positioning and rotation.
+- `RenderLivingEvent.Post` is used to overlay the straw hat on farmer villager entities in the world, with proper body yaw and head pitch/yaw interpolation.
+- `VillagerRegistry.getRegisteredVillagers()` is used to include all modded professions in the breeder's random profession pool.

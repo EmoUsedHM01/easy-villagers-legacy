@@ -1,0 +1,12 @@
+[
+  {
+    "modid": "easyvillagerslegacy",
+    "name": "Easy Villagers Legacy",
+    "description": "Compact villager automation blocks: Trader, Farmer, Breeder, and Iron Farm. A 1.7.10 backport inspired by Easy Villagers.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "authorList": [],
+    "credits": "Original Easy Villagers by Max Henkel"
+  }
+]

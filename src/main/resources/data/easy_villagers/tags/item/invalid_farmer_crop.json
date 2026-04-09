@@ -1,9 +1,0 @@
-{
-  "replace": false,
-  "values": [
-    {
-      "id": "farmersdelight:tomato_seeds",
-      "required": false
-    }
-  ]
-}

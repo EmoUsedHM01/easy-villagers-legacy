@@ -1,7 +1,0 @@
-{
-  "parent": "easy_villagers:block/farm",
-  "textures": {
-    "front": "minecraft:block/dirt",
-    "back": "minecraft:block/dirt"
-  }
-}

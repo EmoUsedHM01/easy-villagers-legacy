@@ -1,7 +1,0 @@
-{
-  "parent": "easy_villagers:block/farm",
-  "textures": {
-    "front": "minecraft:block/mossy_cobblestone",
-    "back": "minecraft:block/mossy_cobblestone"
-  }
-}

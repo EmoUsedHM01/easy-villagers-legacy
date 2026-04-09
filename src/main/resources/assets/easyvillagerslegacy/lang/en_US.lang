@@ -1,0 +1,32 @@
+# Items
+item.easyvillagerslegacy.villager.name=Villager
+item.easyvillagerslegacy.villager_baby.name=Baby Villager
+
+# Blocks
+tile.easyvillagerslegacy.trader.name=Trader Block
+tile.easyvillagerslegacy.farmer.name=Farmer Block
+tile.easyvillagerslegacy.breeder.name=Breeder Block
+tile.easyvillagerslegacy.iron_farm.name=Iron Farm Block
+
+# GUI
+gui.easyvillagerslegacy.farmer=Farmer
+gui.easyvillagerslegacy.breeder=Breeder
+gui.easyvillagerslegacy.iron_farm=Iron Farm
+gui.easyvillagerslegacy.cycle_trades=Cycle Trades
+
+# Tooltips
+tooltip.easyvillagerslegacy.villager=Right-click a villager to pick them up
+tooltip.easyvillagerslegacy.contains_villager=Contains a villager
+tooltip.easyvillagerslegacy.empty=Empty
+tooltip.easyvillagerslegacy.workstation=Workstation: %s
+tooltip.easyvillagerslegacy.profession=Profession: %s
+tooltip.easyvillagerslegacy.no_workstation=No workstation set
+
+# Messages
+msg.easyvillagerslegacy.villager_placed=Villager placed
+msg.easyvillagerslegacy.villager_removed=Villager removed
+msg.easyvillagerslegacy.workstation_set=Workstation set: %s
+msg.easyvillagerslegacy.workstation_cleared=Workstation cleared
+msg.easyvillagerslegacy.trades_cycled=Trades refreshed
+msg.easyvillagerslegacy.block_full=This block already has a villager
+msg.easyvillagerslegacy.need_villager=Place a villager first

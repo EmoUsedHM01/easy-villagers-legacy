@@ -1,9 +1,0 @@
-{
-    "model": {
-        "type": "minecraft:special",
-        "base": "easy_villagers:item/trader",
-        "model": {
-            "type": "easy_villagers:trader"
-        }
-    }
-}
