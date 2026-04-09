@@ -1,7 +1,6 @@
 package com.easyvillagerslegacy.block;
 
 import com.easyvillagerslegacy.EasyVillagersLegacy;
-import com.easyvillagerslegacy.client.renderer.BlockRendererVillager;
 import com.easyvillagerslegacy.item.ItemVillager;
 import com.easyvillagerslegacy.tileentity.TileEntityVillagerBase;
 
@@ -28,6 +27,9 @@ import cpw.mods.fml.relauncher.SideOnly;
  * and the custom display case rendering with per-block accent textures.
  */
 public abstract class BlockVillagerBase extends BlockContainer {
+
+    // Set from client-side registration (BlockRendererVillager constructor)
+    public static int renderId = 0;
 
     // Shared textures (registered once, used by all blocks)
     @SideOnly(Side.CLIENT)
@@ -67,7 +69,7 @@ public abstract class BlockVillagerBase extends BlockContainer {
 
     @Override
     public int getRenderType() {
-        return BlockRendererVillager.RENDER_ID;
+        return renderId;
     }
 
     @Override

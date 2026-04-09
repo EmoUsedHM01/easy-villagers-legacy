@@ -27,6 +27,7 @@ public class BlockRendererVillager implements ISimpleBlockRenderingHandler {
 
     public static void register() {
         RENDER_ID = RenderingRegistry.getNextAvailableRenderId();
+        BlockVillagerBase.renderId = RENDER_ID;
         RenderingRegistry.registerBlockHandler(new BlockRendererVillager());
     }
 
