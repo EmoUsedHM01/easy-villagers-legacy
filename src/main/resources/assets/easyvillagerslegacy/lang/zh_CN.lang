@@ -1,0 +1,32 @@
+# 物品
+item.easyvillagerslegacy.villager.name=村民
+item.easyvillagerslegacy.villager_baby.name=幼年村民
+
+# 方块
+tile.easyvillagerslegacy.trader.name=交易器
+tile.easyvillagerslegacy.farmer.name=农民耕种器
+tile.easyvillagerslegacy.breeder.name=繁殖器
+tile.easyvillagerslegacy.iron_farm.name=铁傀儡农场
+
+# GUI
+gui.easyvillagerslegacy.farmer=农民耕种器
+gui.easyvillagerslegacy.breeder=繁殖器
+gui.easyvillagerslegacy.iron_farm=铁傀儡农场
+gui.easyvillagerslegacy.cycle_trades=刷新交易
+
+# 工具提示
+tooltip.easyvillagerslegacy.villager=右键点击村民将其捡起
+tooltip.easyvillagerslegacy.contains_villager=内含一个村民
+tooltip.easyvillagerslegacy.empty=空
+tooltip.easyvillagerslegacy.workstation=工作站点: %s
+tooltip.easyvillagerslegacy.profession=职业: %s
+tooltip.easyvillagerslegacy.no_workstation=未设置工作站点
+
+# 消息
+msg.easyvillagerslegacy.villager_placed=村民已放置
+msg.easyvillagerslegacy.villager_removed=村民已移除
+msg.easyvillagerslegacy.workstation_set=工作站点已设置: %s
+msg.easyvillagerslegacy.workstation_cleared=工作站点已清除
+msg.easyvillagerslegacy.trades_cycled=交易已刷新
+msg.easyvillagerslegacy.block_full=这个方块已有村民
+msg.easyvillagerslegacy.need_villager=请先放置村民
