@@ -195,10 +195,12 @@ public class TileEntityVillagerRenderer extends TileEntitySpecialRenderer {
         Minecraft.getMinecraft().renderEngine.bindTexture(TEX_FARMER_HAT);
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+        GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         hatOverlay.render(0.0625F);
 
+        GL11.glEnable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
     }
 
