@@ -14,10 +14,9 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
 
-/**
- * IMerchant implementation that wraps the TileEntityTrader.
- * Allows using the vanilla merchant GUI/container with block-stored villagers.
- */
+// IMerchant implementation that wraps the TileEntityTrader.
+// Allows using the vanilla merchant GUI/container with block-stored villagers.
+
 public class BlockMerchant implements IMerchant {
 
     private final TileEntityTrader tile;
@@ -34,8 +33,19 @@ public class BlockMerchant implements IMerchant {
         if (tile.hasVillager(0)) {
             cachedVillager = tile.createTemporaryVillager(0);
             if (cachedVillager != null && customer != null) {
-                cachedRecipes = cachedVillager.getRecipes(customer);
+                initTrades(customer);
             }
+        }
+    }
+
+    // Initializes trades from the cached villager. If the villager had no trades
+    // stored (first open after profession change), saves the generated trades
+    // back to the tile entity so they persist for future opens.
+    private void initTrades(EntityPlayer player) {
+        boolean hadOffers = tile.getVillagerData(0).hasKey("Offers");
+        cachedRecipes = cachedVillager.getRecipes(player);
+        if (!hadOffers && cachedRecipes != null && cachedRecipes.size() > 0) {
+            tile.saveVillagerState(cachedVillager);
         }
     }
 
@@ -43,7 +53,7 @@ public class BlockMerchant implements IMerchant {
     public void setCustomer(EntityPlayer player) {
         this.customer = player;
         if (cachedVillager != null) {
-            cachedRecipes = cachedVillager.getRecipes(player);
+            initTrades(player);
         }
     }
 
@@ -127,9 +137,7 @@ public class BlockMerchant implements IMerchant {
         return tile;
     }
 
-    /**
-     * Refresh the cached villager after trades are cycled.
-     */
+    // Refresh the cached villager after trades are cycled.
     public void onTradesCycled() {
         refreshVillager();
     }

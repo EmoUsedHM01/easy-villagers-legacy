@@ -89,12 +89,7 @@ public class TileEntityTrader extends TileEntityVillagerBase {
         EntityVillager villager = createTemporaryVillager(0);
         if (villager == null) return null;
 
-        MerchantRecipeList recipes = villager.getRecipes(player);
-
-        // Save back any trade state changes (uses, etc.)
-        saveVillagerState(villager);
-
-        return recipes;
+        return villager.getRecipes(player);
     }
 
     /**
