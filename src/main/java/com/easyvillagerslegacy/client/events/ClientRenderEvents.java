@@ -62,7 +62,10 @@ public class ClientRenderEvents {
             + (villager.rotationYawHead - villager.prevRotationYawHead) * partialTicks
             - bodyYaw;
 
-        // Apply head rotation at the head's rotation point (0, 0, 0 in model space)
+        // Offset to the villager's head position in model space
+        GL11.glTranslatef(0.0F, 0.125F, 0.0F);
+
+        // Apply head rotation at the head's rotation point
         GL11.glRotatef(headYawRelative, 0.0F, 1.0F, 0.0F);
         GL11.glRotatef(headPitch, 1.0F, 0.0F, 0.0F);
 
