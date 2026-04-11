@@ -47,13 +47,13 @@ public class GuiBreeder extends GuiContainer {
 
         String villagerStatus = "Villagers: " + villagerCount + "/2";
         int statusColor = villagerCount == 2 ? 0x00AA00 : 0xAA0000;
-        fontRendererObj.drawString(villagerStatus, 8, 10, statusColor);
+        fontRendererObj.drawString(villagerStatus, 8, -12, statusColor);
 
         // Breeding progress
         if (tile.isBreeding()) {
             int pct = (int)(100.0 * tile.getBreedTimer() / tile.getBreedingTimeTotal());
             String progress = "Breeding: " + pct + "%";
-            fontRendererObj.drawString(progress, 96, 10, 0x00AA00);
+            fontRendererObj.drawString(progress, 96, -12, 0x00AA00);
         }
     }
 

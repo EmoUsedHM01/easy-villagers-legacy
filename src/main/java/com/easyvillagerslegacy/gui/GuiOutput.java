@@ -55,7 +55,7 @@ public class GuiOutput extends GuiContainer {
                 status += " (" + pct + "%)";
             }
         }
-        fontRendererObj.drawString(status, 8, 10, 0xFFFFFF);
+        fontRendererObj.drawString(status, 8, -12, 0xFFFFFF);
     }
 
     @Override

@@ -66,15 +66,15 @@ public class GuiTrader extends GuiMerchant {
 
     @Override
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        super.drawGuiContainerForegroundLayer(mouseX, mouseY);
-
-        // Draw profession name
+        // Draw profession name as the title instead of the vanilla merchant name
         int profession = tile.getVillagerProfession(0);
+        String title;
         if (profession >= 0) {
-            String profName = WorkstationRegistry.getProfessionName(profession);
-            // Draw in the title area
-            fontRendererObj.drawString(profName, xSize / 2 - fontRendererObj.getStringWidth(profName) / 2, 5, 0x404040);
+            title = WorkstationRegistry.getProfessionName(profession);
+        } else {
+            title = "Trader";
         }
+        fontRendererObj.drawString(title, xSize / 2 - fontRendererObj.getStringWidth(title) / 2, 6, 0x404040);
     }
 
     /**
