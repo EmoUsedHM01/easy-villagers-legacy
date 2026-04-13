@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.easyvillagerslegacy"
-version = "1.3.0"
+version = "1.4.0"
 
 minecraft {
     mcVersion.set("1.7.10")
