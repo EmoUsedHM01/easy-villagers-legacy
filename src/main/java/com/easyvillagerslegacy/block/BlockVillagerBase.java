@@ -144,12 +144,14 @@ public abstract class BlockVillagerBase extends BlockContainer {
             return handleRemoveVillager(world, x, y, z, player, tile);
         }
 
-        // Right-click with villager item: place villager
+        // Right-click with villager item: place villager, or open GUI if slot is full
         if (ItemVillager.isVillagerItem(held)) {
-            return handlePlaceVillager(world, x, y, z, player, tile, held);
+            if (handlePlaceVillager(world, x, y, z, player, tile, held)) {
+                return true;
+            }
         }
 
-        // Delegate to subclass for block-specific behavior
+        // Delegate to subclass for block-specific behavior (opens GUI as fallback)
         return handleBlockActivated(world, x, y, z, player, tile, held);
     }
 

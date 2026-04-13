@@ -61,17 +61,13 @@ public class BlockTrader extends BlockVillagerBase {
             }
         }
 
-        // Right-click empty hand: open trading GUI
-        if (heldItem == null && tile.hasVillager(0)) {
+        // Open trading GUI (empty hand or unrecognized item)
+        if (tile.hasVillager(0)) {
             player.openGui(EasyVillagersLegacy.instance, GuiHandler.GUI_TRADER, world, x, y, z);
             return true;
         }
 
-        if (heldItem == null && !tile.hasVillager(0)) {
-            player.addChatMessage(new ChatComponentTranslation("msg.easyvillagerslegacy.need_villager"));
-            return true;
-        }
-
-        return false;
+        player.addChatMessage(new ChatComponentTranslation("msg.easyvillagerslegacy.need_villager"));
+        return true;
     }
 }

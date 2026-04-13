@@ -54,13 +54,9 @@ public class BlockFarmer extends BlockVillagerBase {
             }
         }
 
-        // Empty hand: open GUI
-        if (heldItem == null) {
-            player.openGui(EasyVillagersLegacy.instance, GuiHandler.GUI_FARMER, world, x, y, z);
-            return true;
-        }
-
-        return false;
+        // Open GUI (empty hand or unrecognized item)
+        player.openGui(EasyVillagersLegacy.instance, GuiHandler.GUI_FARMER, world, x, y, z);
+        return true;
     }
 
     @Override

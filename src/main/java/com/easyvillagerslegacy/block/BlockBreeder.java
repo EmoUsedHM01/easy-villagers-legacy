@@ -89,10 +89,7 @@ public class BlockBreeder extends BlockVillagerBase {
     protected boolean handleBlockActivated(World world, int x, int y, int z,
                                             EntityPlayer player, TileEntityVillagerBase tile,
                                             ItemStack heldItem) {
-        if (heldItem == null) {
-            player.openGui(EasyVillagersLegacy.instance, GuiHandler.GUI_BREEDER, world, x, y, z);
-            return true;
-        }
-        return false;
+        player.openGui(EasyVillagersLegacy.instance, GuiHandler.GUI_BREEDER, world, x, y, z);
+        return true;
     }
 }
