@@ -17,7 +17,7 @@ import net.minecraft.world.World;
 public class BlockIronFarm extends BlockVillagerBase {
 
     public BlockIronFarm() {
-        super("iron_farm", "lava_still", "stone");
+        super("iron_farm", "minecraft:lava_still", "minecraft:stone");
     }
 
     @Override

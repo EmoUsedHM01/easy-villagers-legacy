@@ -95,16 +95,10 @@ public abstract class BlockVillagerBase extends BlockContainer {
     @SideOnly(Side.CLIENT)
     @Override
     public void registerBlockIcons(IIconRegister reg) {
-        // Shared textures - only register once (check null to avoid duplicate registration)
-        if (iconFrame == null) {
-            iconFrame = reg.registerIcon(EasyVillagersLegacy.MOD_ID + ":farm");
-        }
-        if (iconGlass == null) {
-            iconGlass = reg.registerIcon("glass");
-        }
-        if (iconIron == null) {
-            iconIron = reg.registerIcon("iron_block");
-        }
+        // Shared textures - re-register every time so icons stay valid across atlas rebuilds
+        iconFrame = reg.registerIcon(EasyVillagersLegacy.MOD_ID + ":farm");
+        iconGlass = reg.registerIcon("minecraft:glass");
+        iconIron = reg.registerIcon("minecraft:iron_block");
 
         // Per-block accent textures
         iconAccentFront = reg.registerIcon(accentFrontName);

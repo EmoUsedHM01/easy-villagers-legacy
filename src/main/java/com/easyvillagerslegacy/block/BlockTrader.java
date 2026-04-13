@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 public class BlockTrader extends BlockVillagerBase {
 
     public BlockTrader() {
-        super("trader", "iron_block", "iron_block");
+        super("trader", "minecraft:iron_block", "minecraft:iron_block");
     }
 
     @Override

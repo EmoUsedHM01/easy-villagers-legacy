@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 public class BlockBreeder extends BlockVillagerBase {
 
     public BlockBreeder() {
-        super("breeder", "planks_oak", "planks_oak");
+        super("breeder", "minecraft:planks_oak", "minecraft:planks_oak");
     }
 
     @Override

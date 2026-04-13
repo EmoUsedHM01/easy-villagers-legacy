@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 public class BlockFarmer extends BlockVillagerBase {
 
     public BlockFarmer() {
-        super("farmer", "dirt", "dirt");
+        super("farmer", "minecraft:dirt", "minecraft:dirt");
     }
 
     @Override
