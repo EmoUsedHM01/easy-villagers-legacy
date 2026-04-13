@@ -282,26 +282,41 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
 
         if (drops == null || drops.isEmpty()) return;
 
-        // Only filter out ONE copy of the exact planted seed item (farmer replants it).
-        // Everything else is output — don't filter by instanceof ItemSeeds since modded
-        // crops (cotton, berries, etc.) may use seed-like items as their main output.
+        // Filter out seed items — only output crop products.
+        // For crops where the seed IS the crop (carrots, potatoes), skip one
+        // (the replanted seed) and output the rest.
         Item seedItem = storedSeed.getItem();
         int seedMeta = storedSeed.getItemDamage();
-        boolean skippedOneSeed = false;
 
+        // Check if any drop is a non-seed item. If not, the seed IS the crop.
+        boolean seedIsCrop = true;
+        for (ItemStack drop : drops) {
+            if (drop != null && !(drop.getItem() == seedItem && drop.getItemDamage() == seedMeta)) {
+                seedIsCrop = false;
+                break;
+            }
+        }
+
+        boolean skippedReplant = false;
         for (ItemStack drop : drops) {
             if (drop == null) continue;
 
-            // Skip exactly one copy of the planted seed (the replanted one)
-            if (!skippedOneSeed && drop.getItem() == seedItem && drop.getItemDamage() == seedMeta) {
-                if (drop.stackSize > 1) {
-                    // Has extras beyond the replanted seed — output the extras
-                    ItemStack output = drop.copy();
-                    output.stackSize = drop.stackSize - 1;
-                    addToOutput(output, 0, OUTPUT_SLOTS - 1);
+            if (drop.getItem() == seedItem && drop.getItemDamage() == seedMeta) {
+                if (seedIsCrop) {
+                    // Seed is the crop (carrots, potatoes) — skip one for replanting, output the rest
+                    if (!skippedReplant) {
+                        skippedReplant = true;
+                        if (drop.stackSize > 1) {
+                            ItemStack output = drop.copy();
+                            output.stackSize = drop.stackSize - 1;
+                            addToOutput(output, 0, OUTPUT_SLOTS - 1);
+                        }
+                        continue;
+                    }
+                } else {
+                    // Normal seed — filter out entirely
+                    continue;
                 }
-                skippedOneSeed = true;
-                continue;
             }
 
             addToOutput(drop, 0, OUTPUT_SLOTS - 1);
