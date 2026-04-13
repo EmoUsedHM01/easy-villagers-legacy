@@ -359,7 +359,7 @@ public class TileEntityVillagerRenderer extends TileEntitySpecialRenderer {
             // Render crossed quads (normal crops like wheat, carrots, etc.)
             IIcon icon;
             try {
-                icon = display.getIcon(0, stage);
+                icon = display.getIcon(0, farmer.getDisplayMeta());
             } catch (Exception e) {
                 GL11.glPopMatrix();
                 return;

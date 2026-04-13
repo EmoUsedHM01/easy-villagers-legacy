@@ -36,10 +36,13 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     /** The block to display visually (same as cropBlock, except for stems which show the fruit) */
     private Block displayBlock;
 
+    /** The base/starting metadata for this crop (e.g. 0 for barley, 4 for cotton in Natura) */
+    private int cropBaseMeta = 0;
+
     /** Max growth metadata for this crop */
     private int cropMaxMeta = 7;
 
-    /** Current visual growth stage (0 to cropMaxMeta) */
+    /** Current visual growth stage (0 to number of growth stages) */
     private int growthStage = 0;
 
     /** Tick counter within current growth stage */
@@ -97,6 +100,7 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     /**
      * Resolves the crop block from the stored seed item.
      * Also sets the display block (fruit block for stems, crop block otherwise).
+     * Determines the base and max metadata for the crop's growth range.
      */
     private void resolveCropBlock() {
         if (storedSeed == null || storedSeed.getItem() == null) {
@@ -109,15 +113,25 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
             IPlantable plantable = (IPlantable) storedSeed.getItem();
             try {
                 cropBlock = plantable.getPlant(worldObj, xCoord, yCoord, zCoord);
+                cropBaseMeta = plantable.getPlantMetadata(worldObj, xCoord, yCoord, zCoord);
             } catch (Exception e) {
                 cropBlock = null;
+                cropBaseMeta = 0;
             }
         } else {
             cropBlock = null;
         }
 
         if (cropBlock != null) {
-            cropMaxMeta = getMaxGrowthMeta(cropBlock);
+            // If getPlantMetadata returns 0 but the seed has item damage, some mods
+            // (like Natura) encode the crop type in the item damage and multiply it
+            // to get the starting metadata. Detect this by checking if getDrops at
+            // meta 0 returns a seed item matching our stored seed.
+            if (cropBaseMeta == 0 && storedSeed.getItemDamage() > 0) {
+                cropBaseMeta = detectBaseMeta();
+            }
+
+            cropMaxMeta = getMaxGrowthMeta(cropBlock, cropBaseMeta);
 
             // For stem crops, display the fruit block instead of the stem
             if (cropBlock instanceof BlockStem) {
@@ -135,6 +149,33 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         } else {
             displayBlock = null;
         }
+    }
+
+    /**
+     * Detects the base metadata for modded crops that encode crop type in metadata.
+     * Searches for the metadata value where getDrops produces items matching our seed.
+     */
+    private int detectBaseMeta() {
+        if (cropBlock == null || worldObj == null) return 0;
+        Item seedItem = storedSeed.getItem();
+        int seedDmg = storedSeed.getItemDamage();
+
+        // Check metadata values in steps of 4 (common pattern for modded multi-crops)
+        for (int baseMeta = 4; baseMeta < 16; baseMeta += 4) {
+            try {
+                ArrayList<ItemStack> testDrops = cropBlock.getDrops(worldObj, xCoord, yCoord, zCoord, baseMeta, 0);
+                if (testDrops != null) {
+                    for (ItemStack drop : testDrops) {
+                        if (drop != null && drop.getItem() == seedItem && drop.getItemDamage() == seedDmg) {
+                            return baseMeta;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Skip this meta if it causes errors
+            }
+        }
+        return 0;
     }
 
     /**
@@ -168,7 +209,15 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     }
 
     public int getCropMaxMeta() {
-        return cropMaxMeta;
+        return cropMaxMeta - cropBaseMeta;
+    }
+
+    /**
+     * Gets the actual block metadata for the current growth stage.
+     * Maps the visual stage (0 to numStages) to the real metadata (cropBaseMeta to cropMaxMeta).
+     */
+    public int getDisplayMeta() {
+        return cropBaseMeta + growthStage;
     }
 
     // ========================
@@ -187,14 +236,18 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
             if (cropBlock == null) return;
         }
 
+        // Number of growth stages for this crop
+        int numStages = cropMaxMeta - cropBaseMeta;
+        if (numStages <= 0) numStages = 1;
+
         // Calculate ticks per growth stage
-        int ticksPerStage = Math.max(1, ModConfig.farmSpeed / (cropMaxMeta + 1));
+        int ticksPerStage = Math.max(1, ModConfig.farmSpeed / (numStages + 1));
 
         growthTimer++;
         if (growthTimer >= ticksPerStage) {
             growthTimer = 0;
 
-            if (growthStage < cropMaxMeta) {
+            if (growthStage < numStages) {
                 // Advance to next growth stage
                 growthStage++;
                 syncToClient();
@@ -276,12 +329,47 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     }
 
     /**
-     * Get the maximum growth metadata for a crop block.
+     * Get the maximum growth metadata for a crop block, given its base metadata.
+     * For vanilla crops (BlockCrops/BlockStem), max is always 7.
+     * For modded crops with metadata-encoded types, searches for the actual max.
      */
-    private int getMaxGrowthMeta(Block crop) {
+    private int getMaxGrowthMeta(Block crop, int baseMeta) {
         if (crop instanceof BlockCrops) return 7;
         if (crop instanceof BlockStem) return 7;
-        return 7;
+
+        // For non-vanilla crops, find max meta by checking when getDrops changes
+        // behavior (returns crop items instead of just seeds at maturity).
+        // Try metadata values from baseMeta upward.
+        if (worldObj != null) {
+            Item seedItem = storedSeed != null ? storedSeed.getItem() : null;
+            int lastValidMeta = baseMeta;
+            for (int meta = baseMeta; meta < baseMeta + 16; meta++) {
+                try {
+                    ArrayList<ItemStack> drops = crop.getDrops(worldObj, xCoord, yCoord, zCoord, meta, 0);
+                    if (drops != null && !drops.isEmpty()) {
+                        // Check if any drop is NOT the seed — that indicates maturity
+                        boolean hasNonSeedDrop = false;
+                        for (ItemStack drop : drops) {
+                            if (drop != null && drop.getItem() != seedItem) {
+                                hasNonSeedDrop = true;
+                                break;
+                            }
+                        }
+                        if (hasNonSeedDrop) {
+                            return meta;
+                        }
+                        lastValidMeta = meta;
+                    } else if (meta > baseMeta) {
+                        // Empty drops after having some means we passed the valid range
+                        break;
+                    }
+                } catch (Exception e) {
+                    break;
+                }
+            }
+            return lastValidMeta;
+        }
+        return baseMeta + 7;
     }
 
     // ========================
@@ -311,6 +399,7 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     protected void writeCustomNBT(NBTTagCompound nbt) {
         nbt.setInteger("FarmTimer", growthTimer);
         nbt.setInteger("GrowthStage", growthStage);
+        nbt.setInteger("CropBaseMeta", cropBaseMeta);
         nbt.setInteger("CropMaxMeta", cropMaxMeta);
 
         if (storedSeed != null) {
@@ -324,6 +413,7 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     protected void readCustomNBT(NBTTagCompound nbt) {
         growthTimer = nbt.getInteger("FarmTimer");
         growthStage = nbt.getInteger("GrowthStage");
+        cropBaseMeta = nbt.getInteger("CropBaseMeta");
         cropMaxMeta = nbt.getInteger("CropMaxMeta");
         if (cropMaxMeta <= 0) cropMaxMeta = 7;
 
