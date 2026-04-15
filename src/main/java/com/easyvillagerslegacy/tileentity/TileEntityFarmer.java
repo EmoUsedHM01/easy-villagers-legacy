@@ -42,6 +42,12 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
     /** Max growth metadata for this crop */
     private int cropMaxMeta = 7;
 
+    /**
+     * IC2 crop name (from seed NBT "name" tag) when stored seed is an IC2 crop seed.
+     * Non-null means this farmer is using the IC2 code path instead of the block path.
+     */
+    private String ic2CropName = null;
+
     /** Current visual growth stage (0 to number of growth stages) */
     private int growthStage = 0;
 
@@ -90,6 +96,7 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         storedSeed = null;
         cropBlock = null;
         displayBlock = null;
+        ic2CropName = null;
         growthStage = 0;
         growthTimer = 0;
         markDirty();
@@ -106,8 +113,22 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         if (storedSeed == null || storedSeed.getItem() == null) {
             cropBlock = null;
             displayBlock = null;
+            ic2CropName = null;
             return;
         }
+
+        // IC2 crop seeds don't implement IPlantable in a useful way (no metadata
+        // growth block). Detect them first and use a dedicated IC2 code path.
+        if (IC2CropSupport.isIC2Seed(storedSeed)) {
+            ic2CropName = IC2CropSupport.getCropName(storedSeed);
+            cropBlock = null;
+            // Use vanilla wheat as the visual — simple cross-shaped crop render.
+            displayBlock = Blocks.wheat;
+            cropBaseMeta = 0;
+            cropMaxMeta = IC2CropSupport.getGrowthStageCount(storedSeed);
+            return;
+        }
+        ic2CropName = null;
 
         if (storedSeed.getItem() instanceof IPlantable) {
             IPlantable plantable = (IPlantable) storedSeed.getItem();
@@ -183,7 +204,9 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
      */
     public static boolean isValidSeed(ItemStack stack) {
         if (stack == null || stack.getItem() == null) return false;
-        return stack.getItem() instanceof IPlantable;
+        if (stack.getItem() instanceof IPlantable) return true;
+        // Accept IC2 crop seeds (ItemCropSeed) — they don't implement IPlantable.
+        return IC2CropSupport.isIC2Seed(stack);
     }
 
     public Block getCropBlock() {
@@ -230,10 +253,12 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         if (isVillagerBaby(0)) return;
         if (!hasSeed()) return;
 
-        // Resolve crop block if not yet done (e.g., after world load)
-        if (cropBlock == null) {
+        // Resolve crop state if not yet done (e.g., after world load).
+        // For vanilla/modded block-based crops, cropBlock must be non-null.
+        // For IC2 crops, ic2CropName carries the state instead.
+        if (cropBlock == null && ic2CropName == null) {
             resolveCropBlock();
-            if (cropBlock == null) return;
+            if (cropBlock == null && ic2CropName == null) return;
         }
 
         // Number of growth stages for this crop
@@ -265,7 +290,22 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
      * Handles special cases like stem crops (melon/pumpkin).
      */
     private void doHarvest() {
-        if (cropBlock == null || storedSeed == null) return;
+        if (storedSeed == null) return;
+
+        // IC2 crops: delegate to the installed CropCard's own getGain() method
+        // via reflection. This yields the correct drop for every registered crop
+        // (IC2, GregTech, Crops++, GoodGenerators, GT++) including GregTech's
+        // overrides of base IC2 cards (Ferru → Ferru Leaves, etc.).
+        if (ic2CropName != null) {
+            ItemStack drop = IC2CropSupport.getHarvestDrop(
+                storedSeed, worldObj, xCoord, yCoord, zCoord, random);
+            if (drop != null) {
+                addToOutput(drop, 0, OUTPUT_SLOTS - 1);
+            }
+            return;
+        }
+
+        if (cropBlock == null) return;
 
         // Special case: stem crops (melon/pumpkin) don't drop fruit via getDrops
         if (cropBlock instanceof BlockStem) {
@@ -416,6 +456,9 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         nbt.setInteger("GrowthStage", growthStage);
         nbt.setInteger("CropBaseMeta", cropBaseMeta);
         nbt.setInteger("CropMaxMeta", cropMaxMeta);
+        if (ic2CropName != null) {
+            nbt.setString("IC2CropName", ic2CropName);
+        }
 
         if (storedSeed != null) {
             NBTTagCompound seedNBT = new NBTTagCompound();
@@ -431,6 +474,7 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         cropBaseMeta = nbt.getInteger("CropBaseMeta");
         cropMaxMeta = nbt.getInteger("CropMaxMeta");
         if (cropMaxMeta <= 0) cropMaxMeta = 7;
+        ic2CropName = nbt.hasKey("IC2CropName") ? nbt.getString("IC2CropName") : null;
 
         if (nbt.hasKey("StoredSeed")) {
             storedSeed = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("StoredSeed"));
@@ -441,6 +485,7 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         } else {
             storedSeed = null;
             cropBlock = null;
+            ic2CropName = null;
         }
     }
 }
