@@ -212,6 +212,10 @@ public abstract class BlockVillagerBase extends BlockContainer {
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase placer, ItemStack stack) {
         int facing = MathHelper.floor_double((double)(placer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+        // Raw yaw formula yields West=1, East=3 but the renderer expects them swapped.
+        // N/S (raw 0, 2) are unaffected.
+        if (facing == 1) facing = 3;
+        else if (facing == 3) facing = 1;
         facing = (facing + getFacingOffset()) & 3;
         world.setBlockMetadataWithNotify(x, y, z, facing, 2);
     }
