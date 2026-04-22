@@ -1,5 +1,6 @@
 package com.easyvillagerslegacy.client.renderer;
 
+import com.easyvillagerslegacy.tileentity.IC2CropSupport;
 import com.easyvillagerslegacy.tileentity.TileEntityBreeder;
 import com.easyvillagerslegacy.tileentity.TileEntityFarmer;
 import com.easyvillagerslegacy.tileentity.TileEntityIronFarm;
@@ -357,12 +358,22 @@ public class TileEntityVillagerRenderer extends TileEntitySpecialRenderer {
             GL11.glEnable(GL11.GL_CULL_FACE);
         } else {
             // Render crossed quads (normal crops like wheat, carrots, etc.)
-            IIcon icon;
-            try {
-                icon = display.getIcon(0, farmer.getDisplayMeta());
-            } catch (Exception e) {
-                GL11.glPopMatrix();
-                return;
+            IIcon icon = null;
+            if (farmer.isIC2Crop()) {
+                // Ask IC2's own CropCard for the sprite at this growth stage.
+                // Falls back to the placeholder wheat icon if IC2 doesn't resolve
+                // (e.g. card not loaded on client, or version without getSprite).
+                icon = IC2CropSupport.getGrowthIcon(
+                    farmer.getStoredSeed(), stage, farmer.getCropMaxMeta(),
+                    farmer.getWorldObj(), farmer.xCoord, farmer.yCoord, farmer.zCoord);
+            }
+            if (icon == null) {
+                try {
+                    icon = display.getIcon(0, farmer.getDisplayMeta());
+                } catch (Exception e) {
+                    GL11.glPopMatrix();
+                    return;
+                }
             }
             if (icon == null) {
                 GL11.glPopMatrix();

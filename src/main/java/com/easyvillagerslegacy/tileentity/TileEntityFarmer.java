@@ -213,6 +213,11 @@ public class TileEntityFarmer extends TileEntityVillagerBase {
         return cropBlock;
     }
 
+    /** True when the stored seed is an IC2-registered crop (uses the IC2 render path). */
+    public boolean isIC2Crop() {
+        return ic2CropName != null;
+    }
+
     /**
      * Gets the block to display visually (fruit block for stems, crop block otherwise).
      */

@@ -9,6 +9,7 @@ import java.util.Random;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 /**
@@ -45,6 +46,7 @@ public final class IC2CropSupport {
     private static Method cardGetGain;
     private static Method cardMaxSize;
     private static Method cardName;
+    private static Method cardGetSprite;
 
     private IC2CropSupport() {}
 
@@ -64,6 +66,11 @@ public final class IC2CropSupport {
             cardGetGain       = cropCardClass.getMethod("getGain", cropTileClass);
             cardMaxSize       = cropCardClass.getMethod("maxSize");
             cardName          = cropCardClass.getMethod("name");
+            try {
+                cardGetSprite = cropCardClass.getMethod("getSprite", cropTileClass);
+            } catch (NoSuchMethodException nsme) {
+                cardGetSprite = null;
+            }
             available = true;
         } catch (Throwable t) {
             available = false;
@@ -192,6 +199,39 @@ public final class IC2CropSupport {
     }
 
     /**
+     * Returns the IC2 crop's own sprite IIcon for a given visual growth stage.
+     * <p>
+     * IC2's {@code CropCard.getSprite(ICropTile)} picks from a 1-indexed
+     * {@code textures[maxSize()]} array using {@code ICropTile.getSize()}, so
+     * we hand it a mock tile reporting size = clamp(stage, 1, maxSize). Stages
+     * 0..maxSize inclusive thus map 1..maxSize..maxSize — the planted slot
+     * starts showing the smallest sprite and ends on the fully-grown one.
+     * Returns null if IC2 isn't loaded, the card can't be resolved, or the card
+     * doesn't expose {@code getSprite} in this IC2 version.
+     */
+    public static IIcon getGrowthIcon(ItemStack seed, int stage, int maxStages,
+                                       World world, int x, int y, int z) {
+        if (!isAvailable() || cardGetSprite == null) return null;
+        Object card = resolveCropCard(seed);
+        if (card == null) return null;
+        int maxSize;
+        try {
+            maxSize = ((Integer) cardMaxSize.invoke(card)).intValue();
+        } catch (Throwable t) {
+            return null;
+        }
+        int size = stage < 1 ? 1 : (stage > maxSize ? maxSize : stage);
+        Object mockTile = createMockTile(card, size, world, x, y, z);
+        try {
+            Object result = cardGetSprite.invoke(card, mockTile);
+            if (result instanceof IIcon) return (IIcon) result;
+        } catch (Throwable t) {
+            // fall through
+        }
+        return null;
+    }
+
+    /**
      * Simulated growth-stage count for IC2 crops. IC2 cards report their own
      * maxSize (usually 3–7); use that if the card is loadable, else fall back
      * to a sensible default.
@@ -211,7 +251,7 @@ public final class IC2CropSupport {
      * sensible defaults for every method a CropCard's getGain() might call.
      * We pretend the crop is fully grown, healthy, and in ideal conditions.
      */
-    private static Object createMockTile(final Object card, final int maxSize,
+    private static Object createMockTile(final Object card, final int reportedSize,
                                           final World world, final int x, final int y, final int z) {
         final NBTTagCompound customData = new NBTTagCompound();
         final ChunkCoordinates location = new ChunkCoordinates(x, y, z);
@@ -224,7 +264,7 @@ public final class IC2CropSupport {
 
                 // Crop card + state
                 if ("getCrop".equals(n))      return card;
-                if ("getSize".equals(n))      return (byte) maxSize;       // fully grown
+                if ("getSize".equals(n))      return (byte) reportedSize;
                 if ("getGrowth".equals(n))    return (byte) 31;            // max stats
                 if ("getGain".equals(n) && ret == byte.class) return (byte) 31;
                 if ("getResistance".equals(n)) return (byte) 31;
